@@ -1,34 +1,35 @@
-# pyproject.toml — in /opt/fl_project/fl-mnist-demo/
+# =====================================================================
+# For a full TOML configuration guide, check the Flower docs:
+# https://flower.ai/docs/framework/how-to-configure-pyproject-toml.html
+# =====================================================================
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = 'fl-mnist-demo'
-version = '1.0.0'
+name = "quickstart-numpy"
+version = "1.0.1"
 description = "Federated Learning with Numpy and Flower (Quickstart Example)"
 license = "Apache-2.0"
 # Dependencies for your Flower App
-dependencies = ['flwr>=1.26.0', 'torch', 'torchvision']
+dependencies = [
+    "flwr[simulation]>=1.26.0",
+    "numpy>=2.0.2", 'torch', 'torchvision'
+]
 
 [tool.hatch.build.targets.wheel]
-packages = ['fl-mnist-demo']
+packages = ["."]
 
 [tool.flwr.app]
-publisher = 'demo'
+publisher = "flwrlabs"
 
+# Point to your ServerApp and ClientApp objects
+# Format: "<module>:<object>"
 [tool.flwr.app.components]
-serverapp = 'fl-mnist-demo.server_app:app'
-clientapp = 'fl-mnist-demo.client_app:app'
+serverapp = "quickstart_numpy.server_app:app"
+clientapp = "quickstart_numpy.client_app:app"
 
-# ── INSECURE federation (for demo Phase A) ─────────────────────────
-[tool.flwr.federations.local-insecure]
-address = '192.168.71.100:9093'
-insecure = true
-
-# ── TLS-secured federation (for demo Phase B) ──────────────────────
-#[tool.flwr.federations.local-deployment-tls]
-#address = '192.168.1.10:9093'
-#root-certificates = 'certificates/ca.crt'
-  # Path relative to pyproject.toml location
-  
+# Custom config values accessible via `context.run_config`
+[tool.flwr.app.config]
+num-server-rounds = 3
