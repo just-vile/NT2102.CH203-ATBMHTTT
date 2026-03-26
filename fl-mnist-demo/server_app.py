@@ -1,28 +1,28 @@
-# fl_mnist_demo/server_app.py
-import logging
-from flwr.server import ServerApp, ServerConfig
-from flwr.server.strategy import FedAvg
-from flwr.common import Context, ndarrays_to_parameters
-from fl_mnist_demo.task import MNISTNet, get_weights
+# fl_mnist_demo/client_app.py
+import flwr as flwr
+from flwr.client import ClientApp, NumPyClient
+from flwr.common import Context
+from fl_mnist_demo.task import MNISTNet, load_data, get_weights, set_weights, train, test, DEVICE
 
-logger = logging.getLogger(__name__)
+class FlowerClient(NumPyClient):
+    def __init__(self, partition_id, num_partitions):
+        self.model = MNISTNet().to(DEVICE)
+        self.train_loader, self.test_loader = load_data(partition_id, num_partitions)
 
-def server_fn(context: Context):
-    # Initialize global model
-    model = MNISTNet()
-    initial_params = ndarrays_to_parameters(get_weights(model))
+    def fit(self, parameters, config):
+        set_weights(self.model, parameters)
+        train(self.model, self.train_loader, epochs=1)
+        return get_weights(self.model), len(self.train_loader.dataset), {}
 
-    strategy = FedAvg(
-        fraction_fit=1.0,          # Use 100% of available clients
-        fraction_evaluate=1.0,
-        min_fit_clients=2,         # Wait for both clients
-        min_evaluate_clients=2,
-        min_available_clients=2,   # Don't start until 2 clients connected
-        initial_parameters=initial_params,
-    )
+    def evaluate(self, parameters, config):
+        set_weights(self.model, parameters)
+        loss, accuracy = test(self.model, self.test_loader)
+        return float(loss), len(self.test_loader.dataset), {'accuracy': float(accuracy)}
 
-    config = ServerConfig(num_rounds=5)
-    return strategy, config
+def client_fn(context: Context):
+    partition_id = context.node_config['partition-id']
+    num_partitions = context.node_config['num-partitions']
+    return FlowerClient(int(partition_id), int(num_partitions)).to_client()
 
-# Register the ServerApp
-app = ServerApp(server_fn=server_fn)
+# Register the ClientApp
+app = ClientApp(client_fn=client_fn)
