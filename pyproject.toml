@@ -15,7 +15,11 @@ license = "Apache-2.0"
 # Dependencies for your Flower App
 dependencies = [
     "flwr[simulation]>=1.26.0",
-    "numpy>=2.0.2", 'torch', 'torchvision'
+    "numpy>=2.0.2",
+    "flwr-datasets[vision]>=0.6.0",
+    "torch>=2.8.0",
+    "torchvision>=0.23.0",
+    "cryptography>=44.0.1",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -27,8 +31,8 @@ publisher = "flwrlabs"
 # Point to your ServerApp and ClientApp objects
 # Format: "<module>:<object>"
 [tool.flwr.app.components]
-serverapp = "fl-mnist-demo.server_app:app"
-clientapp = "fl-mnist-demo.client_app:app"
+serverapp = "quickstart_numpy.server_app:app"
+clientapp = "quickstart_numpy.client_app:app"
 
 # Custom config values accessible via `context.run_config`
 [tool.flwr.app.config]
