@@ -27,13 +27,14 @@ CA_ORGANIZATION = "CA, Inc."
 SERVER_COUNTRY = "DE"
 SERVER_STATE = "HH"
 SERVER_ORGANIZATION = "Flower"
-SERVER_COMMON_NAME = "localhost"
+SERVER_COMMON_NAME = "192.168.71.100"
 
 # Subject Alternative Names (SANs)
 SERVER_SAN_DNS = ["localhost"]
 SERVER_SAN_IPS = [
     "127.0.0.1",
     "::1",
+    "192.168.71.100"
     # "xy.xy.xy.xy",  # Add your server's public IP here
 ]
 
